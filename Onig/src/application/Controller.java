@@ -37,7 +37,6 @@ public class Controller {
 	JSONArray touroku2 = new JSONArray();
 	final String basyo = "hozon.json";
 	
-	
 	  @FXML
 	  Button buttonAdd = new Button("登録");
 	  @FXML
@@ -56,7 +55,8 @@ public class Controller {
 	  TextField txtSec = new TextField();
 	  @FXML
 	  // プリセット
-	  ComboBox puri = new ComboBox();
+	  ComboBox<String> puri = new ComboBox<>();
+	  
 	  @FXML
 	  // タイマー部分 分表示ラベル
 	  Label TimerMin = new Label();
@@ -72,6 +72,13 @@ public class Controller {
   
 	public Controller() {
 		readFile();
+//		puri.getItems().addAll(“apple”,”orange”,”banana”);
+//		for(String key : touroku.keySet()) {
+//			Object value = touroku.get(key);
+//		for (String key : touroku.keySet()) {
+//			puri.getItems().add(key);
+
+//		}
 	}
 	
 	@FXML
@@ -183,19 +190,39 @@ public class Controller {
 
 		  }
 	@FXML
-	void readFile() {
-	    try (BufferedReader in = new BufferedReader(new FileReader(basyo))){
-//	    	touroku
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-	  }
+     public void readFile() {
+		  // ファイルを開く
+		  try (FileReader fr = new FileReader(basyo);
+		    // ファイルを行ごとに読み取る
+		    BufferedReader br = new BufferedReader(fr)) {
+		    String line;
+		    while ((line = br.readLine()) != null) {
+		      // 行をリストに追加する
+		    	line = line.replaceFirst("\\{ *", "");
+		    	line = line.replaceFirst(" *}", "");
+		    	line = line.replaceAll("\"", "");
+		    	line = line.replaceAll("\"", "");;
+		    	String[] s = line.split(" *, *");
+		    	for (int i = 0; i < s.length; i++) {
+		    		String[] ss = s[i].split(":");
+		    		data.put(ss[0], ss[1]);
+		    		touroku.put(ss[0], ss[1]);
+		    	}
+		    }
+			for (String key : touroku.keySet()) {
+				puri.getItems().add(key);
+			}
+		    
+		  } catch (Exception e) {
+		    e.printStackTrace();
+		  }
+	 }
 	
-	void pset() {
-//		if() {
-//			String name = yomi.getString();
-//		}
+	@FXML
+	void puriS () {
+		
 	}
+
 	  
 	  @FXML
 	  void setAdd() {
