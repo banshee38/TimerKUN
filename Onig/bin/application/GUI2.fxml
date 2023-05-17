@@ -13,19 +13,19 @@
 
 <BorderPane fx:id="Controller" prefHeight="381.0" prefWidth="466.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.Controller">
    <center>
-      <VBox fx:id="box" alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+      <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
          <opaqueInsets>
             <Insets bottom="20.0" left="20.0" right="20.0" />
          </opaqueInsets>
          <children>
             <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="350.0" prefWidth="382.0">
                <children>
-                  <ComboBox fx:id="puri" layoutX="14.0" layoutY="14.0" prefHeight="32.0" prefWidth="227.0" promptText="セットを選択">
+                  <ComboBox fx:id="puribox" layoutX="14.0" layoutY="14.0" onAction="#puriS" prefHeight="32.0" prefWidth="227.0" promptText="セットの選択">
                      <opaqueInsets>
                         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                      </opaqueInsets>
                   </ComboBox>
-                  <Button layoutX="256.0" layoutY="19.0" mnemonicParsing="false" text="セット編集" />
+                  <Button fx:id="buttonDel" layoutX="256.0" layoutY="19.0" mnemonicParsing="false" onAction="#delete" text="セット削除" textFill="#da0606" />
                   <Label layoutX="100.0" layoutY="149.0" prefHeight="81.0" prefWidth="101.0" text="分">
                      <font>
                         <Font size="64.0" />

@@ -4,19 +4,21 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.util.ArrayList;
+import java.net.URL;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -25,23 +27,22 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
-public class Controller {
+public class Controller  implements Initializable {
 	BorderPane pane = new BorderPane();
 	
 	VBox box = new VBox();
 	Map<String,String> data =new HashMap<>();
-	List<String> name = new ArrayList<>();
-	List<Integer> time = new ArrayList<>();
 	boolean result = true;  
 	JSONObject touroku = new JSONObject();
-	JSONArray touroku2 = new JSONArray();
 	final String basyo = "hozon.json";
+	ObservableList<String> nakami = FXCollections.observableArrayList();
 	
 	  @FXML
 	  Button buttonAdd = new Button("登録");
 	  @FXML
 	  Button buttonStart = new Button("スタート");
-	  
+	  @FXML
+	  Button buttonDel = new Button("セット削除");
 	  @FXML
 	  Button buttonReset = new Button("リセット");
 	  @FXML  
@@ -55,8 +56,7 @@ public class Controller {
 	  TextField txtSec = new TextField();
 	  @FXML
 	  // プリセット
-	  ComboBox<String> puri = new ComboBox<>();
-	  
+	  ComboBox<String> puribox = new ComboBox<>();
 	  @FXML
 	  // タイマー部分 分表示ラベル
 	  Label TimerMin = new Label();
@@ -70,28 +70,34 @@ public class Controller {
 	//アニメーションクラス
       Timeline timer;
   
-	public Controller() {
+	public Controller () {
 		readFile();
-//		puri.getItems().addAll(“apple”,”orange”,”banana”);
-//		for(String key : touroku.keySet()) {
-//			Object value = touroku.get(key);
-//		for (String key : touroku.keySet()) {
-//			puri.getItems().add(key);
-
-//		}
+		start();
+		reset();
+		puriS ();
+		setAdd();
 	}
 	
 	@FXML
 	void start() {
 		buttonStart.setOnAction((ActionEvent) -> {
-
 			  buttonAdd.setDisable(true);
 		      buttonStart.setDisable(true);
 		      buttonReset.setDisable(false);
 		      String min = txtMin.getText();
 		      String sec = txtSec.getText();
+		      
+		      if(txtMin.getLength() < 2 || txtSec.getLength() < 2) {
+		    	  if(txtMin.getLength() < 2) {
+		    		  min = ("0" + min);
+		    	  }if(txtSec.getLength() < 2) {
+		    		  sec = ("0" + sec);
+		    	  }
+		      }
+		      
 		      TimerMin.setText(min);
 		      TimerSec.setText(sec);
+		    	  
 		      
 		      if (min == null || sec == null) {
 		    	  labelTimerFinish.setText("数字を入力してください");
@@ -101,6 +107,18 @@ public class Controller {
 		    	  labelTimerFinish.setText("数字を入力してください");
 		    	  reset();
 		    	  return;
+		      }
+		      
+		      if(txtMin.getLength() > 2 || txtSec.getLength() > 2) {
+		    	  if(txtMin.getLength() > 2) {
+		    		  labelTimerFinish.setText("2桁まで有効です");
+			    	  reset();
+			    	  return;
+		    	  }else if(txtSec.getLength() > 2) {
+		    		  labelTimerFinish.setText("2桁まで有効です");
+			    	  reset();
+			    	  return;
+		    	  }
 		      }
 		      
 		      for(int i = 0; i < min.length(); i++) {
@@ -201,26 +219,31 @@ public class Controller {
 		    	line = line.replaceFirst("\\{ *", "");
 		    	line = line.replaceFirst(" *}", "");
 		    	line = line.replaceAll("\"", "");
-		    	line = line.replaceAll("\"", "");;
 		    	String[] s = line.split(" *, *");
 		    	for (int i = 0; i < s.length; i++) {
 		    		String[] ss = s[i].split(":");
 		    		data.put(ss[0], ss[1]);
 		    		touroku.put(ss[0], ss[1]);
+		    		String name = ss[0];
+		    		nakami.add(name);
 		    	}
 		    }
-			for (String key : touroku.keySet()) {
-				puri.getItems().add(key);
-			}
 		    
 		  } catch (Exception e) {
 		    e.printStackTrace();
 		  }
+
 	 }
 	
 	@FXML
 	void puriS () {
-		
+        puribox.setOnAction((ActionEvent)->{
+        	String selectedValue = puribox.getValue();
+        	String s = data.get(selectedValue);
+        	String[] ss = s.split("\\|");
+        	txtMin.setText(ss[0]);
+        	txtSec.setText(ss[1]);
+        });
 	}
 
 	  
@@ -252,6 +275,25 @@ public class Controller {
 		  }
 	   });
 	  }
+	@FXML  
+	public void delete() {
+	  buttonDel.setOnAction((ActionEvent) -> {
+	    String selectedValue = puribox.getValue();
+		touroku.remove(selectedValue);
+		data.remove(selectedValue);
+		try (PrintWriter save = new PrintWriter(new FileWriter(basyo))) {
+            save.write(touroku.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+	    });
+	}
+	  
+
+	@Override
+	public void initialize(URL arg0, ResourceBundle arg1) {
+		puribox.setItems(nakami);
+	}
 	  
 	  
 
